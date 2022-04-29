@@ -3,8 +3,10 @@ const webpush = require("web-push");
 const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require('fs');
+const {publicVapidKey, privateVapidKey} = require("./config");
 const key = fs.readFileSync('./key.pem');
 const cert = fs.readFileSync('./cert.pem');
+
 
 const app = express();
 
@@ -17,10 +19,10 @@ app.use(bodyParser.json());
 //   "BJa5H_wou1FNndkcC5ErdA3PoO9PmeSc7S9P2vS-wHkZL4GIanpb9m2jv9GryFxhbaDsnjAW6GZEEBOyvWS4ZY8";
 // const privateVapidKey = "96KmP2UWtxX7fzUsVLS_dmJnamAgzmqSsWhXYI8Ng2M";
 
-const publicVapidKey =
-  "BJthRQ5myDgc7OSXzPCMftGw-n16F7zQBEN7EUD6XxcfTTvrLGWSIG7y_JxiWtVlCFua0S8MTB5rPziBqNx1qIo";
-const privateVapidKey = "3KzvKasA2SoCxsp0iIG_o9B0Ozvl1XDwI63JRKNIWBM";
-
+// const publicVapidKey =
+//   "BJthRQ5myDgc7OSXzPCMftGw-n16F7zQBEN7EUD6XxcfTTvrLGWSIG7y_JxiWtVlCFua0S8MTB5rPziBqNx1qIo";
+// const privateVapidKey = "3KzvKasA2SoCxsp0iIG_o9B0Ozvl1XDwI63JRKNIWBM";
+console.log(privateVapidKey);
 webpush.setVapidDetails(
   "mailto:test@test.com",
   publicVapidKey,
