@@ -8,31 +8,68 @@ if ("serviceWorker" in navigator) {
 
 // Register SW, Register Push, Send Push
 async function send() {
-  // Register Service Worker
-  console.log("Registering service worker...");
-  const register = await navigator.serviceWorker.register("/worker.js", {
-    scope: "/"
-  });
-  console.log("Service Worker Registered...");
+  // // Register Service Worker
+  // console.log("Registering service worker...");
+  // const register = await navigator.serviceWorker.register("/worker.js", {
+  //   scope: "/"
+  // });
+  // console.log("Service Worker Registered...");
 
-  // Register Push
-  console.log("Registering Push...");
-  const subscription = await register.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-  });
-  console.log("Push Registered...");
+  // // Register Push
+  // console.log("Registering Push...");
+  // const subscription = await register.pushManager.subscribe({
+  //   userVisibleOnly: true,
+  //   applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+  // });
+  // console.log("Push Registered...");
 
-  // Send Push Notification
-  console.log("Sending Push...");
-  await fetch("/subscribe", {
-    method: "POST",
-    body: JSON.stringify(subscription),
-    headers: {
-      "content-type": "application/json"
+  // // Send Push Notification
+  // console.log("Sending Push...");
+  // await fetch("/subscribe", {
+  //   method: "POST",
+  //   body: JSON.stringify(subscription),
+  //   headers: {
+  //     'Accept': 'application/json',
+  //     'Content-Type': 'application/json'
+  //   },
+  // });
+  // console.log("Push Sent...");
+  navigator.serviceWorker.register("/worker.js", {scope: "/"});
+
+navigator.serviceWorker.ready
+.then(function(registration) {
+  // Use the PushManager to get the user's subscription to the push service.
+  return registration.pushManager.getSubscription()
+  .then(async function(subscription) {
+    // If a subscription was found, return it.
+    if (subscription) {
+      return subscription;
     }
+
+    // Get the server's public key
+    // Chrome doesn't accept the base64-encoded (string) vapidPublicKey yet
+    // urlBase64ToUint8Array() is defined in /tools.js
+    const convertedVapidKey = urlBase64ToUint8Array(publicVapidKey);
+
+    // Otherwise, subscribe the user (userVisibleOnly allows to specify that we don't plan to
+    // send notifications that don't have a visible effect for the user).
+    return registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertedVapidKey
+    });
   });
-  console.log("Push Sent...");
+}).then(function(subscription) {
+  // Send the subscription details to the server using the Fetch API.
+  fetch('/subscribe', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(subscription),
+  });
+
+});
 }
 
 function urlBase64ToUint8Array(base64String) {
